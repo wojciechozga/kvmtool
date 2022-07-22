@@ -121,7 +121,9 @@ void kvm_cpu__delete(struct kvm_cpu *vcpu)
 static bool kvm_cpu_riscv_sbi(struct kvm_cpu *vcpu)
 {
 	char ch;
+	u64 addr;
 	bool ret = true;
+	char *str_start, *str_end;
 	int dfd = kvm_cpu__get_debug_fd();
 
 	switch (vcpu->kvm_run->riscv_sbi.extension_id) {
@@ -136,6 +138,50 @@ static bool kvm_cpu_riscv_sbi(struct kvm_cpu *vcpu)
 					term_getc(vcpu->kvm, 0);
 		else
 			vcpu->kvm_run->riscv_sbi.ret[0] = SBI_ERR_FAILURE;
+		break;
+	case SBI_EXT_DBCN:
+		switch (vcpu->kvm_run->riscv_sbi.function_id) {
+		case SBI_EXT_DBCN_CONSOLE_WRITE:
+		case SBI_EXT_DBCN_CONSOLE_READ:
+			addr = vcpu->kvm_run->riscv_sbi.args[1];
+#if __riscv_xlen == 32
+			addr |= (u64)vcpu->kvm_run->riscv_sbi.args[2] << 32;
+#endif
+			if (!vcpu->kvm_run->riscv_sbi.args[0])
+				break;
+			str_start = guest_flat_to_host(vcpu->kvm, addr);
+			addr += vcpu->kvm_run->riscv_sbi.args[0] - 1;
+			str_end = guest_flat_to_host(vcpu->kvm, addr);
+			if (!str_start || !str_end) {
+				vcpu->kvm_run->riscv_sbi.ret[0] =
+						SBI_ERR_INVALID_PARAM;
+				break;
+			}
+			vcpu->kvm_run->riscv_sbi.ret[1] = 0;
+			while (str_start <= str_end) {
+				if (vcpu->kvm_run->riscv_sbi.function_id ==
+				    SBI_EXT_DBCN_CONSOLE_WRITE) {
+					term_putc(str_start, 1, 0);
+				} else {
+					if (!term_readable(0))
+						break;
+					*str_start = term_getc(vcpu->kvm, 0);
+				}
+				vcpu->kvm_run->riscv_sbi.ret[1]++;
+				str_start++;
+			}
+			break;
+		case SBI_EXT_DBCN_CONSOLE_WRITE_BYTE:
+			ch = vcpu->kvm_run->riscv_sbi.args[0];
+			term_putc(&ch, 1, 0);
+			vcpu->kvm_run->riscv_sbi.ret[0] = 0;
+			vcpu->kvm_run->riscv_sbi.ret[1] = 0;
+			break;
+		default:
+			vcpu->kvm_run->riscv_sbi.ret[0] =
+						SBI_ERR_NOT_SUPPORTED;
+			break;
+		}
 		break;
 	default:
 		dprintf(dfd, "Unhandled SBI call\n");
