@@ -98,6 +98,12 @@ struct kvm_riscv_timer {
 	__u64 state;
 };
 
+struct kvm_riscv_cove_measure_region {
+	unsigned long user_addr;
+	unsigned long gpa;
+	unsigned long size;
+};
+
 /*
  * ISA extension IDs specific to KVM. This is not the same as the host ISA
  * extension IDs as that is internal to the host and should not be exposed
