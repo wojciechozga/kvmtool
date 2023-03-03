@@ -249,5 +249,6 @@ void virtio_notify_status(struct kvm *kvm, struct virtio_device *vdev,
 			  void *dev, u8 status);
 
 u64 virtio_dev_get_host_features(struct virtio_device *vdev, struct kvm *kvm, void *dev);
+int virtio_tranport_parser(const struct option *opt, const char *arg, int unset);
 
 #endif /* KVM__VIRTIO_H */
