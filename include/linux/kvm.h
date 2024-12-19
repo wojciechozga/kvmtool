@@ -913,6 +913,7 @@ struct kvm_ppc_resize_hpt {
 	((x) & KVM_VM_TYPE_ARM_IPA_SIZE_MASK)
 
 #define KVM_VM_TYPE_RISCV_COVE_MULTI_STEP_INIT  (1UL << 9)
+#define KVM_VM_TYPE_RISCV_COVE_SINGLE_STEP_INIT	(1UL << 10)
 /*
  * ioctls for /dev/kvm fds:
  */

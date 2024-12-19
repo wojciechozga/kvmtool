@@ -43,9 +43,12 @@ u64 kvm__arch_default_ram_address(void)
 int kvm__get_vm_type(struct kvm *kvm)
 {
 	if (kvm->cfg.arch.cove_vm) {
-		if (__riscv_xlen == 64)
-			return KVM_VM_TYPE_RISCV_COVE_MULTI_STEP_INIT;
-		else
+		if (__riscv_xlen == 64) {
+			if (kvm->cfg.arch.cove_single_step_init)
+				return KVM_VM_TYPE_RISCV_COVE_SINGLE_STEP_INIT;
+			else
+				return KVM_VM_TYPE_RISCV_COVE_MULTI_STEP_INIT;
+		} else
 			die("CoVE VM is not supported in RV32\n");
 	} else {
 		return KVM_VM_TYPE;
