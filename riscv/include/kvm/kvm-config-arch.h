@@ -12,6 +12,7 @@ struct kvm_config_arch {
 	bool		sbi_ext_disabled[KVM_RISCV_SBI_EXT_MAX];
 	bool		cove_vm;
 	bool		cove_single_step_init;
+	const char	*cove_tap_filename;
 };
 
 #define OPT_ARCH_RUN(pfx, cfg)						\
@@ -72,6 +73,8 @@ struct kvm_config_arch {
 	OPT_BOOLEAN('\0', "cove-vm", &(cfg)->cove_vm, "CoVE VM"), \
 	OPT_BOOLEAN('\0', "cove-single-step-init", \
 			&(cfg)->cove_single_step_init, \
-			"Single-step init of a CoVE VM"),
+			"Single-step init of a CoVE VM"), \
+	OPT_STRING('\0', "cove-tap", &(cfg)->cove_tap_filename,		\
+			".tap file", "TVM Attestation Payload (TAP) file"),
 
 #endif /* KVM__KVM_CONFIG_ARCH_H */

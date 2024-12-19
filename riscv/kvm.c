@@ -130,8 +130,32 @@ void kvm__arch_init(struct kvm *kvm)
 	riscv__irqchip_create(kvm);
 }
 
+static ssize_t load_tap(struct kvm *kvm, const char *tap_filename, unsigned long guest_addr,
+		 void *pos, void* limit)
+{
+	int fd;
+	ssize_t file_size;
+
+	fd = open(tap_filename, O_RDONLY);
+	if (fd < 0)
+		return -1;
+
+	file_size = read_file(fd, pos, limit - pos);
+	if (file_size < 0) {
+		if (errno == ENOMEM)
+			die("CoVE TAP too big to fit in guest memory.");
+		die_perror("CoVE TAP read");
+	}
+	kvm_cove_measure_region(kvm, (unsigned long)pos, guest_addr,
+				file_size, KVM_RISCV_COVE_REGION_COVE_TAP);
+	pr_debug("Loaded CoVE TAP to 0x%lx (%zd bytes)",
+		 guest_addr, file_size);
+	return file_size;
+}
+
 #define FDT_ALIGN	SZ_4M
 #define INITRD_ALIGN	SZ_4K
+#define COVE_TAP_ALIGN	SZ_4K
 bool kvm__arch_load_kernel_image(struct kvm *kvm, int fd_kernel, int fd_initrd,
 				 const char *kernel_cmdline)
 {
@@ -168,6 +192,24 @@ bool kvm__arch_load_kernel_image(struct kvm *kvm, int fd_kernel, int fd_initrd,
 
 	kvm_cove_measure_region(kvm, (unsigned long)pos, kvm->arch.kern_guest_start,
 			       file_size, KVM_RISCV_COVE_REGION_KERNEL);
+
+	/*
+	 * Place TVM attestation payload (TAP) just after the kernel at the
+	 * COVE_TAP_ALIGN aligned address.
+	 */
+	if (kvm->cfg.arch.cove_tap_filename) {
+		pos = kernel_end + COVE_TAP_ALIGN;
+		guest_addr = ALIGN(host_to_guest_flat(kvm, pos), COVE_TAP_ALIGN);
+		pos = guest_flat_to_host(kvm, guest_addr);
+		if (pos < kernel_end)
+			die("CoVE TAP overlaps with kernel image.");
+
+		file_size = load_tap(kvm, kvm->cfg.arch.cove_tap_filename,
+				     guest_addr, pos, limit);
+		if (file_size >= 0)
+			kernel_end = pos + file_size;
+	}
+
 	/* Place FDT just after kernel at FDT_ALIGN address */
 	pos = kernel_end + FDT_ALIGN;
 	guest_addr = ALIGN(host_to_guest_flat(kvm, pos), FDT_ALIGN);
