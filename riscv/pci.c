@@ -67,10 +67,11 @@ void pci__generate_fdt_nodes(void *fdt, struct kvm *kvm)
 	_FDT(fdt_property(fdt, "reg", &cfg_reg_prop, sizeof(cfg_reg_prop)));
 	_FDT(fdt_property(fdt, "ranges", ranges, sizeof(ranges)));
 
-	/* CoVE VMs do not support pin based interrupts yet as APLIC isn't
-	 * supported.
+	/*
+	 * TVMs created in multi-step way do not support pin based interrupts
+	 * yet as APLIC isn't supported.
 	 */
-	if (!kvm->cfg.arch.cove_vm) {
+	if (!kvm->cfg.arch.cove_vm || kvm->cfg.arch.cove_single_step_init) {
 		/* Generate the interrupt map ... */
 		dev_hdr = device__first_dev(DEVICE_BUS_PCI);
 		while (dev_hdr && nentries < ARRAY_SIZE(irq_map)) {

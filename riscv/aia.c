@@ -144,8 +144,11 @@ static int aia__init(struct kvm *kvm)
 	};
 
 
-	/* CoVE VM only supports hardware with physical guest interrupt file */
-	if (kvm->cfg.arch.cove_vm)
+	/*
+	 * TVMs created in multi-step way currently support only hardware
+	 * with physical guest interrupt file
+	 */
+	if (kvm->cfg.arch.cove_vm || kvm->cfg.arch.cove_single_step_init)
 		aia_mode = KVM_DEV_RISCV_AIA_MODE_HWACCEL;
 
 	/* Setup global device attribute variables */
@@ -174,8 +177,8 @@ static int aia__init(struct kvm *kvm)
 	/* Save number of HARTs for FDT generation */
 	aia_nr_harts = kvm->nrcpus;
 
-	/* CoVE VMs do not support APLIC yet */
-	if (!kvm->cfg.arch.cove_vm) {
+	/* TVMs created in multi-step way do not support APLIC yet */
+	if (!kvm->cfg.arch.cove_vm || kvm->cfg.arch.cove_single_step_init) {
 		aia_nr_sources = irq__get_nr_allocated_lines();
 		ret = ioctl(aia_fd, KVM_SET_DEVICE_ATTR, &aia_nr_sources_attr);
 		if (ret)
