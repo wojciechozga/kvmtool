@@ -8,6 +8,7 @@
 #include <linux/byteorder.h>
 #include <linux/kernel.h>
 #include <linux/sizes.h>
+#include <linux/kvm.h>
 
 struct isa_ext_info {
 	const char *name;
@@ -259,7 +260,8 @@ static int setup_fdt(struct kvm *kvm)
 		dump_fdt(kvm->cfg.arch.dump_dtb_filename, fdt_dest);
 
 	kvm_cove_measure_region(kvm, (unsigned long)fdt_dest,
-				kvm->arch.dtb_guest_start, FDT_MAX_SIZE);
+				kvm->arch.dtb_guest_start, FDT_MAX_SIZE,
+				KVM_RISCV_COVE_REGION_FDT);
 	return 0;
 }
 late_init(setup_fdt);

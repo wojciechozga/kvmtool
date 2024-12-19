@@ -5,6 +5,7 @@
 #include <linux/const.h>
 #include <linux/sizes.h>
 #include <linux/types.h>
+#include <linux/kvm.h>
 
 #define MAX_PAGE_SIZE		SZ_4K
 
@@ -121,5 +122,6 @@ void riscv__generate_irq_prop(void *fdt, u8 irq, enum irq_type irq_type);
 void riscv__irqchip_create(struct kvm *kvm);
 
 void kvm_cove_measure_region(struct kvm *kvm, unsigned long uaddr,
-			      unsigned long gpa, unsigned long rsize);
+			      unsigned long gpa, unsigned long rsize,
+				  enum KVM_RISCV_COVE_REGION type);
 #endif /* KVM__KVM_ARCH_H */

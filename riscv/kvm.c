@@ -15,7 +15,8 @@ struct kvm_ext kvm_req_ext[] = {
 };
 
 void kvm_cove_measure_region(struct kvm *kvm, unsigned long uaddr,
-			      unsigned long gpa, unsigned long rsize)
+			      unsigned long gpa, unsigned long rsize,
+				  enum KVM_RISCV_COVE_REGION type)
 {
 	int ret;
 
@@ -26,6 +27,7 @@ void kvm_cove_measure_region(struct kvm *kvm, unsigned long uaddr,
 		.user_addr = uaddr,
 		.gpa = gpa,
 		.size = rsize,
+		.type = type,
 	};
 
 	ret = ioctl(kvm->vm_fd, KVM_RISCV_COVE_MEASURE_REGION, &mr);
@@ -165,7 +167,7 @@ bool kvm__arch_load_kernel_image(struct kvm *kvm, int fd_kernel, int fd_initrd,
 		 kvm->arch.kern_guest_start, file_size);
 
 	kvm_cove_measure_region(kvm, (unsigned long)pos, kvm->arch.kern_guest_start,
-			       file_size);
+			       file_size, KVM_RISCV_COVE_REGION_KERNEL);
 	/* Place FDT just after kernel at FDT_ALIGN address */
 	pos = kernel_end + FDT_ALIGN;
 	guest_addr = ALIGN(host_to_guest_flat(kvm, pos), FDT_ALIGN);
@@ -207,7 +209,7 @@ bool kvm__arch_load_kernel_image(struct kvm *kvm, int fd_kernel, int fd_initrd,
 			 kvm->arch.initrd_guest_start,
 			 kvm->arch.initrd_size);
 		kvm_cove_measure_region(kvm, (unsigned long)pos, initrd_start,
-				       file_size);
+				       file_size, KVM_RISCV_COVE_REGION_INITRD);
 	} else {
 		kvm->arch.initrd_size = 0;
 	}
