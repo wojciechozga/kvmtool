@@ -98,10 +98,19 @@ struct kvm_riscv_timer {
 	__u64 state;
 };
 
+enum KVM_RISCV_COVE_REGION {
+	KVM_RISCV_COVE_REGION_FIRMWARE = 0,
+	KVM_RISCV_COVE_REGION_KERNEL,
+	KVM_RISCV_COVE_REGION_FDT,
+	KVM_RISCV_COVE_REGION_INITRD,
+	KVM_RISCV_COVE_REGION_COVE_TAP,
+};
+
 struct kvm_riscv_cove_measure_region {
 	unsigned long user_addr;
 	unsigned long gpa;
 	unsigned long size;
+	enum KVM_RISCV_COVE_REGION type;
 };
 
 /*
