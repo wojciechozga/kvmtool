@@ -212,7 +212,7 @@ static int setup_fdt(struct kvm *kvm)
 	_FDT(fdt_property(fdt, "ranges", NULL, 0));
 
 	/* TVMs created in multi-step way do not support MMIO devices yet */
-	if (!kvm->cfg.arch.cove_vm || kvm->cfg.arch.cove_single_step_init) {
+	// if (!kvm->cfg.arch.cove_vm || kvm->cfg.arch.cove_single_step_init) {
 		/* Virtio MMIO devices */
 		dev_hdr = device__first_dev(DEVICE_BUS_MMIO);
 		while (dev_hdr) {
@@ -230,7 +230,7 @@ static int setup_fdt(struct kvm *kvm)
 						riscv__generate_irq_prop);
 			dev_hdr = device__next_dev(dev_hdr);
 		}
-	}
+	// }
 
 	/* PCI host controller */
 	pci__generate_fdt_nodes(fdt, kvm);

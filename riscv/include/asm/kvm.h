@@ -53,6 +53,8 @@ struct kvm_riscv_config {
 	unsigned long mvendorid;
 	unsigned long marchid;
 	unsigned long mimpid;
+	unsigned long zicboz_block_size;
+       unsigned long satp_mode;
 };
 
 /* CORE registers for KVM_GET_ONE_REG and KVM_SET_ONE_REG */
@@ -132,7 +134,17 @@ enum KVM_RISCV_ISA_EXT_ID {
 	KVM_RISCV_ISA_EXT_SVINVAL,
 	KVM_RISCV_ISA_EXT_ZIHINTPAUSE,
 	KVM_RISCV_ISA_EXT_ZICBOM,
-	KVM_RISCV_ISA_EXT_SSAIA,
+	KVM_RISCV_ISA_EXT_ZICBOZ,
+       KVM_RISCV_ISA_EXT_ZBB,
+       KVM_RISCV_ISA_EXT_SSAIA,
+       KVM_RISCV_ISA_EXT_V,
+       KVM_RISCV_ISA_EXT_SVNAPOT,
+       KVM_RISCV_ISA_EXT_ZBA,
+       KVM_RISCV_ISA_EXT_ZBS,
+       KVM_RISCV_ISA_EXT_ZICNTR,
+       KVM_RISCV_ISA_EXT_ZICSR,
+       KVM_RISCV_ISA_EXT_ZIFENCEI,
+       KVM_RISCV_ISA_EXT_ZIHPM,
 	KVM_RISCV_ISA_EXT_MAX,
 };
 
@@ -177,8 +189,8 @@ enum KVM_RISCV_SBI_EXT_ID {
 
 /* Control and status registers are mapped as type 3 */
 #define KVM_REG_RISCV_CSR		(0x03 << KVM_REG_RISCV_TYPE_SHIFT)
-#define KVM_REG_RISCV_CSR_GENERAL	0x0
-#define KVM_REG_RISCV_CSR_AIA		0x1
+#define KVM_REG_RISCV_CSR_GENERAL      (0x0 << KVM_REG_RISCV_SUBTYPE_SHIFT)
+#define KVM_REG_RISCV_CSR_AIA          (0x1 << KVM_REG_RISCV_SUBTYPE_SHIFT)
 #define KVM_REG_RISCV_CSR_REG(name)	\
 	(offsetof(struct kvm_riscv_csr, name) / sizeof(unsigned long))
 #define KVM_REG_RISCV_CSR_AIA_REG(name)	\

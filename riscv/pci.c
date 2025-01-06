@@ -71,7 +71,7 @@ void pci__generate_fdt_nodes(void *fdt, struct kvm *kvm)
 	 * TVMs created in multi-step way do not support pin based interrupts
 	 * yet as APLIC isn't supported.
 	 */
-	if (!kvm->cfg.arch.cove_vm || kvm->cfg.arch.cove_single_step_init) {
+	// if (!kvm->cfg.arch.cove_vm) {
 		/* Generate the interrupt map ... */
 		dev_hdr = device__first_dev(DEVICE_BUS_PCI);
 		while (dev_hdr && nentries < ARRAY_SIZE(irq_map)) {
@@ -118,7 +118,7 @@ void pci__generate_fdt_nodes(void *fdt, struct kvm *kvm)
 			_FDT(fdt_property(fdt, "interrupt-map-mask", &irq_mask,
 					  sizeof(irq_mask)));
 		}
-	}
+	// }
 
 	/* Set MSI parent if available */
 	if (riscv_irqchip_msi_phandle != PHANDLE_RESERVED)
