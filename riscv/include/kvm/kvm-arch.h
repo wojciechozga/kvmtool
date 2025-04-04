@@ -124,4 +124,5 @@ void riscv__irqchip_create(struct kvm *kvm);
 void kvm_cove_measure_region(struct kvm *kvm, unsigned long uaddr,
 			      unsigned long gpa, unsigned long rsize,
 				  enum KVM_RISCV_COVE_REGION type);
+void kvm_cove_preload_regions(struct kvm *kvm);
 #endif /* KVM__KVM_ARCH_H */

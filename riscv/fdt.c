@@ -262,6 +262,10 @@ static int setup_fdt(struct kvm *kvm)
 	kvm_cove_measure_region(kvm, (unsigned long)fdt_dest,
 				kvm->arch.dtb_guest_start, FDT_MAX_SIZE,
 				KVM_RISCV_COVE_REGION_FDT);
+	// We are ready to preload all pages now because FDT is
+	// created after all measured regions and vcpus are initialized
+	kvm_cove_preload_regions(kvm);
+
 	return 0;
 }
 late_init(setup_fdt);

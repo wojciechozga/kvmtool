@@ -37,6 +37,23 @@ void kvm_cove_measure_region(struct kvm *kvm, unsigned long uaddr,
 	}
 }
 
+void kvm_cove_preload_regions(struct kvm *kvm)
+{
+	int ret;
+
+	if (!kvm->cfg.arch.cove_vm)
+		return;
+
+	struct kvm_riscv_cove_preload_regions v = {
+	};
+
+	ret = ioctl(kvm->vm_fd, KVM_RISCV_COVE_PRELOAD_REGIONS, &v);
+	if (ret < 0) {
+		ret = -errno;
+		die("Preloading regions failed for CoVE VM\n");
+	}
+}
+
 u64 kvm__arch_default_ram_address(void)
 {
 	return RISCV_RAM;
